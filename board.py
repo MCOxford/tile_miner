@@ -1,5 +1,4 @@
 from random import choice
-
 import arcade.color
 
 from constants import TYPES
@@ -212,7 +211,7 @@ class Board(object):
         string = ""
         for i in range(self._board_row-1, -1, -1):
             for j in range(self._board_column):
-                string += str(self._board[i][j]) + "\t"
+                string += str(self._board[i][j]) + " " + str(self._board[i][j].coordinates) + "\t"
             string += "\n"
         return string
 
