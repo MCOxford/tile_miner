@@ -1,5 +1,4 @@
 from random import choice
-import arcade.color
 
 from constants import TYPES
 from tile import Tile
@@ -18,24 +17,46 @@ class Board(object):
         :param column: # of columns in the board
         :param board_setup: # initial board setup to use when initialising the state of the board. Default is None.
         """
-        self._board = []
-        self._board_row = row
-        self._board_column = column
-        self.initialise_board(board_setup)
+        self.board = []
+        self.board_row = row
+        self.board_column = column
+        self._initialise_board(board_setup)
 
     @property
     def board(self):
         return self._board
 
+    @board.setter
+    def board(self, value):
+        if not isinstance(value, list):
+            raise TypeError(f"Incorrect variable type assigned to board: {value}")
+        self._board = value
+
     @property
     def board_row(self):
         return self._board_row
+
+    @board_row.setter
+    def board_row(self, value):
+        if not isinstance(value, int):
+            raise TypeError(f"Incorrect variable type assigned to board_row: {value}")
+        if value <= 0:
+            raise ValueError(f"Row must be greater than zero: {value}")
+        self._board_row = value
 
     @property
     def board_column(self):
         return self._board_column
 
-    def initialise_board(self, board_setup):
+    @board_column.setter
+    def board_column(self, value):
+        if not isinstance(value, int):
+            raise TypeError(f"Incorrect variable type assigned to board_row: {value}")
+        if value <= 0:
+            raise ValueError(f"Row must be greater than zero: {value}")
+        self._board_column = value
+
+    def _initialise_board(self, board_setup):
         """
         Initialise the board with non-empty Tile objects
 
@@ -126,16 +147,16 @@ class Board(object):
 
             # Append the top tile
             if node[0] > 0:
-                adjacent_tiles.append(self._board[node[0]-1][node[1]])
+                adjacent_tiles.append(self._board[node[0] - 1][node[1]])
             # Append the left tile
             if node[1] > 0:
-                adjacent_tiles.append(self._board[node[0]][node[1]-1])
+                adjacent_tiles.append(self._board[node[0]][node[1] - 1])
             # Append the right tile
             if node[1] < self._board_column - 1:
-                adjacent_tiles.append(self._board[node[0]][node[1]+1])
+                adjacent_tiles.append(self._board[node[0]][node[1] + 1])
             # Append the bottom tile
             if node[0] < self._board_row - 1:
-                adjacent_tiles.append(self._board[node[0]+1][node[1]])
+                adjacent_tiles.append(self._board[node[0] + 1][node[1]])
 
             selected_tiles = [t.coordinates for t in adjacent_tiles if t.tile_type == target_type and
                               t.coordinates not in tile_list]
@@ -187,17 +208,17 @@ class Board(object):
                 else:
                     if j == 0:
                         moves_exist = (tile.tile_type == self._board[i][j + 1].tile_type) \
-                               or (tile.tile_type == self._board[i + 1][j].tile_type) \
-                               or (tile.tile_type == self._board[i - 1][j].tile_type)
+                                      or (tile.tile_type == self._board[i + 1][j].tile_type) \
+                                      or (tile.tile_type == self._board[i - 1][j].tile_type)
                     elif j == self._board_column - 1:
                         moves_exist = (tile.tile_type == self._board[i][j - 1].tile_type) \
-                               or (tile.tile_type == self._board[i + 1][j].tile_type) \
-                               or (tile.tile_type == self._board[i - 1][j].tile_type)
+                                      or (tile.tile_type == self._board[i + 1][j].tile_type) \
+                                      or (tile.tile_type == self._board[i - 1][j].tile_type)
                     else:
                         moves_exist = (tile.tile_type == self._board[i][j - 1].tile_type) \
-                               or (tile.tile_type == self._board[i][j + 1].tile_type) \
-                               or (tile.tile_type == self._board[i - 1][j].tile_type) \
-                               or (tile.tile_type == self._board[i + 1][j].tile_type)
+                                      or (tile.tile_type == self._board[i][j + 1].tile_type) \
+                                      or (tile.tile_type == self._board[i - 1][j].tile_type) \
+                                      or (tile.tile_type == self._board[i + 1][j].tile_type)
                 if moves_exist:
                     return True
         return False
@@ -209,7 +230,7 @@ class Board(object):
         :return:
         """
         string = ""
-        for i in range(self._board_row-1, -1, -1):
+        for i in range(self._board_row - 1, -1, -1):
             for j in range(self._board_column):
                 string += str(self._board[i][j]) + " " + str(self._board[i][j].coordinates) + "\t"
             string += "\n"

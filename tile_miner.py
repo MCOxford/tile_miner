@@ -1,5 +1,6 @@
 import arcade
 import random
+import time
 from tile import Tile
 from board import Board
 from dashboard import Dashboard
@@ -17,8 +18,8 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 random.seed(0)
 
 # Set how many rows and columns we will have
-ROW_COUNT = 4
-COLUMN_COUNT = 4
+ROW_COUNT = 5
+COLUMN_COUNT = 5
 
 # Do the math to figure out our screen dimensions
 SCREEN_WIDTH = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2*VERTICAL_BORDER_MARGIN
@@ -67,6 +68,7 @@ class TileMiner(arcade.Window):
             'height': HORIZONTAL_BORDER_MARGIN - 2 * MARGIN,
         }
         self.dashboard = Dashboard(self.dashboard_data)
+        self.message_countdown = 0
         logging.info("Initial board setup:\n" + str(self.board))
 
     def on_draw(self):
@@ -103,13 +105,18 @@ class TileMiner(arcade.Window):
             self.board.remove_tiles(group)
             self.board.increment_board_tiles(perimeter)
         else:
-            logging.info("only one tile!")
+            self.dashboard.message = "only one tile!"
         check = self.board.any_legal_moves()
         if not check:
-            logging.warning("NO MORE MOVES!")
+            self.dashboard.message = "NO MORE MOVES!"
 
     def update(self, new_time):
         self.dashboard.timer -= new_time
+        if self.dashboard.message is not "":
+            self.message_countdown -= new_time
+            if self.message_countdown <= 0:
+                self.dashboard.message = ""
+                self.message_countdown = 2
         if self.dashboard.timer < 0:
             self.close()
 

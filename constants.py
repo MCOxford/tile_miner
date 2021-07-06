@@ -20,6 +20,12 @@ TILE_PIXEL_HEIGHT = 83
 # Margin to separate each cell
 MARGIN = 3
 
+# Vertical Border margin
+VERTICAL_BORDER_MARGIN = 50
+
+# Horizontal Border margin
+HORIZONTAL_BORDER_MARGIN = 100
+
 # Width and height of each individual tile when scaled
 SCALE_FACTOR = 0.5
 TILE_SCALED_WIDTH = int(TILE_PIXEL_WIDTH * SCALE_FACTOR)
