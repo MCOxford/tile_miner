@@ -68,7 +68,7 @@ class TileMiner(arcade.Window):
             'height': HORIZONTAL_BORDER_MARGIN - 2 * MARGIN,
         }
         self.dashboard = Dashboard(self.dashboard_data)
-        self.message_countdown = 0
+        self.no_moves = False
         logging.info("Initial board setup:\n" + str(self.board))
 
     def on_draw(self):
@@ -109,15 +109,17 @@ class TileMiner(arcade.Window):
         check = self.board.any_legal_moves()
         if not check:
             self.dashboard.message = "NO MORE MOVES!"
+            self.no_moves = True
 
     def update(self, new_time):
         self.dashboard.timer -= new_time
-        if self.dashboard.message is not "":
-            self.message_countdown -= new_time
-            if self.message_countdown <= 0:
-                self.dashboard.message = ""
-                self.message_countdown = 2
-        if self.dashboard.timer < 0:
+        if self.dashboard.message != "" and self.dashboard.message != "NO MORE MOVES!":
+            self.dashboard.msg_timer -= new_time
+            if self.dashboard.msg_timer <= 0:
+                self.dashboard.reset_message()
+                self.dashboard.reset_msg_timer()
+        if self.dashboard.timer < 0 or self.no_moves:
+            time.sleep(2)
             self.close()
 
 

@@ -2,16 +2,24 @@ import arcade
 import time
 from constants import *
 
+
 # TODO: Finish Dashboard class
+def check_positive_int_or_float(value, field_name):
+    if not (isinstance(value, int) or isinstance(value, float)):
+        raise TypeError(f"Incorrect variable type assigned to {field_name}: {value}")
+    if value <= 0:
+        raise ValueError(f"{field_name} must be greater than zero: {value}")
 
 
 class Dashboard(object):
 
-    def __init__(self, dashboard_data, timer=60, score=0, message=""):
+    def __init__(self, dashboard_data, timer=60, score=0, message="", msg_timer=2):
         self._dashboard_data = dashboard_data
+        self._initial_msg_timer = msg_timer
         self.timer = timer
         self.score = score
         self.message = message
+        self.msg_timer = msg_timer
 
     @property
     def dashboard_data(self):
@@ -57,10 +65,18 @@ class Dashboard(object):
             raise TypeError(f"Incorrect variable type assigned to message: {value}")
         self._message = value
 
+    @property
+    def msg_timer(self):
+        return self._msg_timer
+
+    @msg_timer.setter
+    def msg_timer(self, value):
+        self._msg_timer = value
+
     def setup_dashboard(self):
         # Draw dashboard with border
         arcade.draw_rectangle_filled(**self._dashboard_data, color=arcade.color.BLUE)
-        arcade.draw_rectangle_outline(**self._dashboard_data, color=arcade.color.BLACK, border_width=2*MARGIN)
+        arcade.draw_rectangle_outline(**self._dashboard_data, color=arcade.color.BLACK, border_width=2 * MARGIN)
 
         # Calculate timer (in MM:SS format) and display text
         calc_min = int(self._timer) // 60
@@ -93,8 +109,8 @@ class Dashboard(object):
                          font_name='Verdana',
                          bold=True)
 
-    def display_message(self):
-        end_time = time.time() + 2
-        while time.time() < end_time:
-            pass
-        self.message = ""
+    def reset_message(self):
+        self._message = ""
+
+    def reset_msg_timer(self):
+        self._msg_timer = self._initial_msg_timer
