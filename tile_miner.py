@@ -7,22 +7,17 @@ from dashboard import Dashboard
 from constants import *
 import logging
 
-# TODO: Create space on window for score, timer, etc.
-# TODO: Set up a scoring system
-# TODO: GUI?
-# TODO: Highlight grouped tiles?
-
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 
 # Random seed (for debugging)
 random.seed(0)
 
 # Set how many rows and columns we will have
-ROW_COUNT = 5
-COLUMN_COUNT = 5
+ROW_COUNT = 6
+COLUMN_COUNT = 6
 
 # Do the math to figure out our screen dimensions
-SCREEN_WIDTH = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2*VERTICAL_BORDER_MARGIN
+SCREEN_WIDTH = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2 * VERTICAL_BORDER_MARGIN
 SCREEN_HEIGHT = (TILE_SCALED_HEIGHT + MARGIN) * ROW_COUNT + HORIZONTAL_BORDER_MARGIN
 
 
@@ -48,7 +43,8 @@ class TileMiner(arcade.Window):
         for row in range(ROW_COUNT):
             board_template.append([])
             for column in range(COLUMN_COUNT):
-                x = column * (TILE_SCALED_WIDTH + MARGIN) + (TILE_SCALED_WIDTH / 2 + MARGIN / 2) + VERTICAL_BORDER_MARGIN
+                x = column * (TILE_SCALED_WIDTH + MARGIN) + (
+                            TILE_SCALED_WIDTH / 2 + MARGIN / 2) + VERTICAL_BORDER_MARGIN
                 y = row * (TILE_SCALED_HEIGHT + MARGIN) + (TILE_SCALED_HEIGHT / 2 + MARGIN / 2)
                 initial_tile_type = random.randint(1, 4)
                 sprite = Tile(initial_tile_type)
@@ -60,7 +56,7 @@ class TileMiner(arcade.Window):
                 self.grid_sprite_list.append(sprite)
                 board_template[row].append(sprite)
 
-        self.board = Board(ROW_COUNT, COLUMN_COUNT, board_template)
+        self._board = Board(ROW_COUNT, COLUMN_COUNT, board_template)
         self.dashboard_data = {
             'center_x': SCREEN_WIDTH / 2,
             'center_y': (ROW_COUNT + 1) * (TILE_SCALED_HEIGHT + MARGIN) + 2 * MARGIN,
@@ -68,8 +64,15 @@ class TileMiner(arcade.Window):
             'height': HORIZONTAL_BORDER_MARGIN - 2 * MARGIN,
         }
         self.dashboard = Dashboard(self.dashboard_data)
+
         self.no_moves = False
-        logging.info("Initial board setup:\n" + str(self.board))
+
+        self._group = []
+        self._perimeter = []
+
+        self._timer = 0
+
+        logging.info("Initial board setup:\n" + str(self._board))
 
     def on_draw(self):
         """
@@ -83,6 +86,26 @@ class TileMiner(arcade.Window):
 
         self.grid_sprite_list.draw()
 
+    def on_mouse_motion(self, x, y, dx, dy):
+        """
+        Called when the user moves the mouse.
+        """
+
+        column = int((x - VERTICAL_BORDER_MARGIN) // (TILE_SCALED_WIDTH + MARGIN))
+        row = int(y // (TILE_SCALED_HEIGHT + MARGIN))
+
+        # TODO: Debug group highlighting code
+        if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
+                or self._board.get_board_tile(row, column) == 0:
+            return
+        group, perimeter = self._board.find_group_and_perimeter(row, column)
+        sorted_group = sorted(group)
+        if len(group) > 1 and self._group != sorted_group:
+            print('foo')
+            self._group = sorted_group
+            logging.info("group: " + str(self._group))
+            logging.info("perimeter: " + str(self._perimeter))
+
     def on_mouse_press(self, x, y, button, modifiers):
         """
         Called when the user presses a mouse button.
@@ -94,30 +117,39 @@ class TileMiner(arcade.Window):
 
         logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
 
-        if row >= ROW_COUNT or column >= COLUMN_COUNT or self.board.get_board_tile(row, column) == 0:
+        if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
+                or self._board.get_board_tile(row, column) == 0:
             return
         # Make sure we are on-grid. It is possible to click in the upper right
         # corner in the margin and go to a grid location that doesn't exist
-        group, perimeter = self.board.find_group_and_perimeter(row, column)
-        logging.info("group: " + str(group))
-        logging.info("perimeter: " + str(perimeter))
+        group, perimeter = self._board.find_group_and_perimeter(row, column)
         if len(group) > 1:
-            self.board.remove_tiles(group)
-            self.board.increment_board_tiles(perimeter)
+            self._board.remove_tiles(group)
+            self._board.increment_board_tiles(perimeter)
+            self.dashboard.calculate_new_score(group)
         else:
-            self.dashboard.message = "only one tile!"
-        check = self.board.any_legal_moves()
+            self.dashboard.message = "Only one tile!"
+        check = self._board.any_legal_moves()
         if not check:
             self.dashboard.message = "NO MORE MOVES!"
             self.no_moves = True
 
-    def update(self, new_time):
+    def on_update(self, new_time):
         self.dashboard.timer -= new_time
+
         if self.dashboard.message != "" and self.dashboard.message != "NO MORE MOVES!":
             self.dashboard.msg_timer -= new_time
             if self.dashboard.msg_timer <= 0:
                 self.dashboard.reset_message()
                 self.dashboard.reset_msg_timer()
+
+        if len(self._group) > 1:
+            self._timer += new_time
+            self._board.highlight_group(self._group, self._timer)
+        else:
+            self._timer = 0
+            self._board.flush_color()
+
         if self.dashboard.timer < 0 or self.no_moves:
             time.sleep(2)
             self.close()

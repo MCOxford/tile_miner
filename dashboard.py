@@ -1,5 +1,4 @@
 import arcade
-import time
 from constants import *
 
 
@@ -12,6 +11,9 @@ def check_positive_int_or_float(value, field_name):
 
 
 class Dashboard(object):
+
+    base_tile_score = 100
+    bonus_points = 50
 
     def __init__(self, dashboard_data, timer=60, score=0, message="", msg_timer=2):
         self._dashboard_data = dashboard_data
@@ -39,8 +41,6 @@ class Dashboard(object):
     def timer(self, value):
         if not (isinstance(value, int) or isinstance(value, float)):
             raise TypeError(f"Incorrect variable type assigned to timer: {value}")
-        if value <= 0:
-            raise ValueError(f"timer must be greater than zero: {value}")
         self._timer = value
 
     @property
@@ -114,3 +114,11 @@ class Dashboard(object):
 
     def reset_msg_timer(self):
         self._msg_timer = self._initial_msg_timer
+
+    def calculate_new_score(self, group):
+        group_size = len(group)
+        self._score += self.base_tile_score * group_size
+        if group_size > 4:
+            bonus = self.bonus_points * (group_size - 4)
+            self._score += bonus
+            self.message = f"Bonus {bonus} points!"

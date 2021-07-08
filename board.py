@@ -1,6 +1,7 @@
 from random import choice
+import numpy as np
 
-from constants import TYPES
+from constants import *
 from tile import Tile
 
 
@@ -15,7 +16,7 @@ class Board(object):
 
         :param row: # of rows in the board
         :param column: # of columns in the board
-        :param board_setup: # initial board setup to use when initialising the state of the board. Default is None.
+        :param board_setup: initial board setup to use when initialising the state of the board. Default is None.
         """
         self.board = []
         self.board_row = row
@@ -40,8 +41,8 @@ class Board(object):
     def board_row(self, value):
         if not isinstance(value, int):
             raise TypeError(f"Incorrect variable type assigned to board_row: {value}")
-        if value <= 0:
-            raise ValueError(f"Row must be greater than zero: {value}")
+        if value <= 3:
+            raise ValueError(f"Row must be greater than 3: {value}")
         self._board_row = value
 
     @property
@@ -52,8 +53,8 @@ class Board(object):
     def board_column(self, value):
         if not isinstance(value, int):
             raise TypeError(f"Incorrect variable type assigned to board_row: {value}")
-        if value <= 0:
-            raise ValueError(f"Row must be greater than zero: {value}")
+        if value <= 3:
+            raise ValueError(f"Row must be greater than 3: {value}")
         self._board_column = value
 
     def _initialise_board(self, board_setup):
@@ -134,10 +135,10 @@ class Board(object):
         of tiles that surround them having a different tile type. Uses breadth-first search.
         :param row_pos: row position selected
         :param col_pos: column position selected
-        :return: tile_list, perimeter
+        :return: List, List
         """
         target_type = self._board[row_pos][col_pos].tile_type
-        tile_list = [(row_pos, col_pos)]
+        group = [(row_pos, col_pos)]
         perimeter = []
         queue = [(row_pos, col_pos)]
 
@@ -159,20 +160,33 @@ class Board(object):
                 adjacent_tiles.append(self._board[node[0] + 1][node[1]])
 
             selected_tiles = [t.coordinates for t in adjacent_tiles if t.tile_type == target_type and
-                              t.coordinates not in tile_list]
+                              t.coordinates not in group]
             boundary_tiles = [t.coordinates for t in adjacent_tiles if t.tile_type != target_type and
                               t.coordinates not in perimeter]
-            tile_list.extend(selected_tiles)
+            group.extend(selected_tiles)
             perimeter.extend(boundary_tiles)
             queue.extend(selected_tiles)
 
-        return tile_list, perimeter
+        return group, perimeter
+
+    # TODO: Debug highlight_group
+    def highlight_group(self, group, counter):
+        for coord in group:
+            self._board[coord[0]][coord[1]].color = (255,
+                                                     int(255 * 0.5 * (np.sin(2*counter) + 1)),
+                                                     int(255 * 0.5 * (np.sin(2*counter) + 1)))
+
+    # TODO: Debug flush_color (better name too?)
+    def flush_color(self):
+        for row in range(self._board_row):
+            for column in range(self._board_column):
+                self._board[row][column].color = (255, 255, 255)
 
     def any_legal_moves(self):
         """
         Check if there any available moves in the board. A 'move' is present on the board if there are at least two
         non-empty contiguous tiles of the same type.
-        :return:
+        :return: Boolean
         """
         for i in range(self._board_row):
             for j in range(self._board_column):
@@ -227,7 +241,7 @@ class Board(object):
         """
         Print out current state of the board. Note that we have to mirror the board when we print it out to match
         the grid displayed in the game window.
-        :return:
+        :return: string
         """
         string = ""
         for i in range(self._board_row - 1, -1, -1):
