@@ -71,6 +71,7 @@ class TileMiner(arcade.Window):
         self._perimeter = []
 
         self._timer = 0
+        self._highlight_target_changed = False
 
         logging.info("Initial board setup:\n" + str(self._board))
 
@@ -96,15 +97,18 @@ class TileMiner(arcade.Window):
 
         # TODO: Debug group highlighting code
         if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
-                or self._board.get_board_tile(row, column) == 0:
+                or self._board.get_tile_type(row, column) == 0:
             return
         group, perimeter = self._board.find_group_and_perimeter(row, column)
         sorted_group = sorted(group)
-        if len(group) > 1 and self._group != sorted_group:
+        if self._group != sorted_group:
             print('foo')
             self._group = sorted_group
-            logging.info("group: " + str(self._group))
-            logging.info("perimeter: " + str(self._perimeter))
+            self._board.flush_board()
+            self._timer = 0
+            self._highlight_target_changed = True
+        else:
+            self._highlight_target_changed = False
 
     def on_mouse_press(self, x, y, button, modifiers):
         """
@@ -118,13 +122,14 @@ class TileMiner(arcade.Window):
         logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
 
         if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
-                or self._board.get_board_tile(row, column) == 0:
+                or self._board.get_tile_type(row, column) == 0:
             return
         # Make sure we are on-grid. It is possible to click in the upper right
         # corner in the margin and go to a grid location that doesn't exist
         group, perimeter = self._board.find_group_and_perimeter(row, column)
         if len(group) > 1:
             self._board.remove_tiles(group)
+            self._board.flush_tiles(group)
             self._board.increment_board_tiles(perimeter)
             self.dashboard.calculate_new_score(group)
         else:
@@ -136,6 +141,7 @@ class TileMiner(arcade.Window):
 
     def on_update(self, new_time):
         self.dashboard.timer -= new_time
+        self._timer += new_time
 
         if self.dashboard.message != "" and self.dashboard.message != "NO MORE MOVES!":
             self.dashboard.msg_timer -= new_time
@@ -143,12 +149,8 @@ class TileMiner(arcade.Window):
                 self.dashboard.reset_message()
                 self.dashboard.reset_msg_timer()
 
-        if len(self._group) > 1:
-            self._timer += new_time
+        if not self._highlight_target_changed:
             self._board.highlight_group(self._group, self._timer)
-        else:
-            self._timer = 0
-            self._board.flush_color()
 
         if self.dashboard.timer < 0 or self.no_moves:
             time.sleep(2)

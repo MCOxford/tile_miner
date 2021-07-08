@@ -88,7 +88,10 @@ class Board(object):
                                          f"Must be at least one.")
             self._board = board_setup
 
-    def get_board_tile(self, row_pos, col_pos):
+    def get_tile_sprite(self, row_pos, col_pos):
+        return self._board[row_pos][col_pos]
+
+    def get_tile_type(self, row_pos, col_pos):
         """
         Get the tile_type variable of a Tile class with board position (row_pos, col_pos)
         :param row_pos: Row index of tile (NB: First row has index 0!)
@@ -97,7 +100,7 @@ class Board(object):
         """
         return self._board[row_pos][col_pos].tile_type
 
-    def set_board_tile(self, row_pos, col_pos, new_tile_type):
+    def set_tile_type(self, row_pos, col_pos, new_tile_type):
         """
         Set the tile_type variable of a Tile class with board position (row_pos, col_pos)
         :param row_pos: Row index of tile (NB: First row has index 0!)
@@ -114,7 +117,7 @@ class Board(object):
         :return:
         """
         for coord in tile_coordinates:
-            self.set_board_tile(coord[0], coord[1], 0)
+            self.set_tile_type(coord[0], coord[1], 0)
 
     def increment_board_tiles(self, tile_coordinates):
         """
@@ -123,11 +126,11 @@ class Board(object):
         :return:
         """
         for coord in tile_coordinates:
-            if self.get_board_tile(coord[0], coord[1]) != 0:
-                new_tile_type = self.get_board_tile(coord[0], coord[1]) + 1
+            if self.get_tile_type(coord[0], coord[1]) != 0:
+                new_tile_type = self.get_tile_type(coord[0], coord[1]) + 1
                 if new_tile_type > 4:
                     new_tile_type = 1
-                self.set_board_tile(coord[0], coord[1], new_tile_type)
+                self.set_tile_type(coord[0], coord[1], new_tile_type)
 
     def find_group_and_perimeter(self, row_pos, col_pos):
         """
@@ -171,16 +174,28 @@ class Board(object):
 
     # TODO: Debug highlight_group
     def highlight_group(self, group, counter):
+        if len(group) == 1:
+            return
         for coord in group:
-            self._board[coord[0]][coord[1]].color = (255,
-                                                     int(255 * 0.5 * (np.sin(2*counter) + 1)),
-                                                     int(255 * 0.5 * (np.sin(2*counter) + 1)))
+            if self.get_tile_type(coord[0], coord[1]) == 0:
+                continue
+            self.get_tile_sprite(coord[0], coord[1]).color = (255,
+                                                              int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)),
+                                                              int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)))
 
-    # TODO: Debug flush_color (better name too?)
-    def flush_color(self):
+    def _flush_tile(self, row_pos, col_pos):
+        self.get_tile_sprite(row_pos, col_pos).color = (255, 255, 255)
+
+    def flush_tiles(self, group):
+        for coord in group:
+            if self.get_tile_type(coord[0], coord[1]) == 0:
+                continue
+            self._flush_tile(coord[0], coord[1])
+
+    def flush_board(self):
         for row in range(self._board_row):
             for column in range(self._board_column):
-                self._board[row][column].color = (255, 255, 255)
+                self._flush_tile(row, column)
 
     def any_legal_moves(self):
         """

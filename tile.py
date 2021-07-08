@@ -49,10 +49,3 @@ class Tile(arcade.Sprite):
 
     def __str__(self):
         return str(self.tile_type)
-
-
-
-
-
-
-
