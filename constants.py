@@ -1,9 +1,9 @@
 # Tile image file paths
-EMPTY_TILE = "images/empty.png"
-ONE_TILE = "images/one.png"
-TWO_TILE = "images/two.png"
-THREE_TILE = "images/three.png"
-FOUR_TILE = "images/four.png"
+EMPTY_TILE = "images/empty_alt.png"
+ONE_TILE = "images/one_alt.png"
+TWO_TILE = "images/two_alt.png"
+THREE_TILE = "images/three_alt.png"
+FOUR_TILE = "images/four_alt.png"
 
 # A tile must be EXACTLY ONE of the five listed types below
 TYPES = {
