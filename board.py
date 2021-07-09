@@ -2,7 +2,7 @@ from random import choice
 import numpy as np
 
 from constants import *
-from tile import Tile
+from tile import Tile, TileType
 
 
 class Board(object):
@@ -66,7 +66,7 @@ class Board(object):
         :return:
         """
         if board_setup is None:
-            nonempty_types = list(TYPES.keys())[1::]
+            nonempty_types = [i for i in TileType if i != TileType.EMPTY]
             for i in range(self._board_row):
                 self._board.append([])
                 for j in range(self._board_column):
@@ -83,12 +83,12 @@ class Board(object):
                     if not isinstance(board_setup[i][j], Tile):
                         raise TypeError(f"INITIALISATION ERROR: board position ({i}, {j}) "
                                         f"is not an instance of class Tile.")
-                    if board_setup[i][j].tile_type == 0:
+                    if board_setup[i][j].tile_type == TileType.EMPTY:
                         raise ValueError(f"INITIALISATION ERROR: tile_type of board position ({i}, {j}) is zero. "
                                          f"Must be at least one.")
             self._board = board_setup
 
-    def get_tile_sprite(self, row_pos, col_pos):
+    def _get_tile_sprite(self, row_pos, col_pos):
         return self._board[row_pos][col_pos]
 
     def get_tile_type(self, row_pos, col_pos):
@@ -105,7 +105,7 @@ class Board(object):
         Set the tile_type variable of a Tile class with board position (row_pos, col_pos)
         :param row_pos: Row index of tile (NB: First row has index 0!)
         :param col_pos: Column index of tile
-        :param new_tile_type: new value of tile_type variable. Exactly one from the list [0,1,2,3,4]
+        :param new_tile_type: TileType enum
         :return:
         """
         self._board[row_pos][col_pos].tile_type = new_tile_type
@@ -117,7 +117,7 @@ class Board(object):
         :return:
         """
         for coord in tile_coordinates:
-            self.set_tile_type(coord[0], coord[1], 0)
+            self.set_tile_type(coord[0], coord[1], TileType.EMPTY)
 
     def increment_board_tiles(self, tile_coordinates):
         """
@@ -126,11 +126,18 @@ class Board(object):
         :return:
         """
         for coord in tile_coordinates:
-            if self.get_tile_type(coord[0], coord[1]) != 0:
-                new_tile_type = self.get_tile_type(coord[0], coord[1]) + 1
-                if new_tile_type > 4:
-                    new_tile_type = 1
-                self.set_tile_type(coord[0], coord[1], new_tile_type)
+            if self.get_tile_type(coord[0], coord[1]) == TileType.ONE_TILE:
+                self.set_tile_type(coord[0], coord[1], TileType.TWO_TILE)
+                continue
+            if self.get_tile_type(coord[0], coord[1]) == TileType.TWO_TILE:
+                self.set_tile_type(coord[0], coord[1], TileType.THREE_TILE)
+                continue
+            if self.get_tile_type(coord[0], coord[1]) == TileType.THREE_TILE:
+                self.set_tile_type(coord[0], coord[1], TileType.FOUR_TILE)
+                continue
+            if self.get_tile_type(coord[0], coord[1]) == TileType.FOUR_TILE:
+                self.set_tile_type(coord[0], coord[1], TileType.ONE_TILE)
+                continue
 
     def find_group_and_perimeter(self, row_pos, col_pos):
         """
@@ -140,7 +147,7 @@ class Board(object):
         :param col_pos: column position selected
         :return: List, List
         """
-        target_type = self._board[row_pos][col_pos].tile_type
+        target_type = self.get_tile_type(row_pos, col_pos)
         group = [(row_pos, col_pos)]
         perimeter = []
         queue = [(row_pos, col_pos)]
@@ -172,24 +179,21 @@ class Board(object):
 
         return group, perimeter
 
-    # TODO: Debug highlight_group
     def highlight_group(self, group, counter):
         if len(group) == 1:
             return
         for coord in group:
-            if self.get_tile_type(coord[0], coord[1]) == 0:
+            if self.get_tile_type(coord[0], coord[1]) == TileType.EMPTY:
                 continue
-            self.get_tile_sprite(coord[0], coord[1]).color = (255,
-                                                              int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)),
-                                                              int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)))
+            self._get_tile_sprite(coord[0], coord[1]).color = (255,
+                                                               int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)),
+                                                               int(255 * 0.5 * (np.sin(HIGHLIGHT_SPEED * counter) + 1)))
 
     def _flush_tile(self, row_pos, col_pos):
-        self.get_tile_sprite(row_pos, col_pos).color = (255, 255, 255)
+        self._get_tile_sprite(row_pos, col_pos).color = (255, 255, 255)
 
     def flush_tiles(self, group):
         for coord in group:
-            if self.get_tile_type(coord[0], coord[1]) == 0:
-                continue
             self._flush_tile(coord[0], coord[1])
 
     def flush_board(self):
@@ -207,7 +211,7 @@ class Board(object):
             for j in range(self._board_column):
                 tile = self._board[i][j]
                 # Check that the tile in question is non-empty
-                if tile.tile_type == 0:
+                if tile.tile_type == TileType.EMPTY:
                     continue
                 # Check the top row
                 if i == 0:
