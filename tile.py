@@ -4,7 +4,9 @@ from constants import *
 
 
 class TileTypeError(Exception):
-    pass
+
+    def __init__(self, msg, args):
+        super().__init__(msg, args)
 
 
 class TileType(Enum):
@@ -34,11 +36,12 @@ class Tile(arcade.Sprite):
     """
 
     def __init__(self, tile_type=TileType.EMPTY):
-        self._check_tile_type_exists(tile_type)
-        self._tile_type = tile_type
-        self._coordinates = None
+        # Tile type used. This represents the 'block' currently being used.
+        self.tile_type: TileType = tile_type
+        # Grid coordinates for the tile
+        self.coordinates: tuple = (0, 0)
         try:
-            self.filename = TileType.get_file_name(self._tile_type)
+            self.filename: str = TileType.get_file_name(self._tile_type)
         except FileNotFoundError as e:
             print(f"SPRITE IMAGE CANNOT BE FOUND: {e}")
         super().__init__(self.filename)
@@ -65,15 +68,23 @@ class Tile(arcade.Sprite):
     def tile_type(self, value):
         self._check_tile_type_exists(value)
         self._tile_type = value
-        # Since we updated what tile we are now using, we also must update the texture used
-        self._set_tile_texture()
 
     @classmethod
     def _check_tile_type_exists(cls, tile_type):
+        """
+        Check tile_type is indeed a TileType member
+        :param tile_type: parameter to check
+        :return:
+        """
         if not isinstance(tile_type, TileType):
-            raise TileTypeError
+            raise TileTypeError("Invalid tile type used", tile_type)
 
-    def _set_tile_texture(self):
+    def set_tile_texture(self):
+        """
+        Load texture for Tile object using the specified file path. Should use when tile_type field is set to a
+        different value.
+        :return:
+        """
         try:
             img = TileType.get_file_name(self._tile_type)
             self.texture = arcade.load_texture(img)
@@ -82,3 +93,7 @@ class Tile(arcade.Sprite):
 
     def __str__(self):
         return str(self.tile_type.value)
+
+
+if __name__ == "__main__":
+    tile = Tile(TileType.ONE_TILE)

@@ -81,12 +81,17 @@ class TileMiner(arcade.Window):
         }
         self.dashboard = Dashboard(self.dashboard_data)
 
+        # Evaluates to True if no available moves can be found (i.e. the game ends)
         self.no_moves = False
 
+        # Group of same-type tiles to be highlighted when the cursor hovers over them
         self._highlighted_group = []
 
-        self._timer = 0
+        # Has _highlighted_group changed?
         self._highlight_target_changed = False
+
+        # dashboard message timer. Message pops up for a given amount of time for certain events.
+        self._timer = 0
 
         logging.info("Initial board setup:\n" + str(self._board))
 
@@ -146,17 +151,18 @@ class TileMiner(arcade.Window):
             self.dashboard.calculate_new_score(group)
         else:
             self.dashboard.message = "Only one tile!"
-        check = self._board.any_legal_moves()
-        if not check:
+        any_more_moves = self._board.any_legal_moves()
+        if not any_more_moves:
             self.dashboard.message = "NO MORE MOVES!"
             self.no_moves = True
 
     def on_update(self, new_time):
         """
         Called every frame
-        :param new_time: delta time
+        :param new_time: delta time for each frame
         :return:
         """
+
         self.dashboard.timer -= new_time
         self._timer += new_time
 
@@ -176,9 +182,10 @@ class TileMiner(arcade.Window):
 
 def main():
     """
-    Main method to run game from
+    Main method to run game from.
     :return:
     """
+
     TileMiner(SCREEN_WIDTH, SCREEN_HEIGHT)
     arcade.run()
 

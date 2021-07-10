@@ -18,9 +18,9 @@ class Board(object):
         :param column: # of columns in the board
         :param board_setup: initial board setup to use when initialising the state of the board. Default is None.
         """
-        self.board = []
-        self.board_row = row
-        self.board_column = column
+        self.board: list = []
+        self.board_row: int = row
+        self.board_column: int = column
         self._initialise_board(board_setup)
 
     @property
@@ -102,13 +102,15 @@ class Board(object):
 
     def set_tile_type(self, row_pos, col_pos, new_tile_type):
         """
-        Set the tile_type variable of a Tile class with board position (row_pos, col_pos)
+        Set the tile_type variable of a Tile class with board position (row_pos, col_pos). Load the appropriate tile
+        texture afterwards.
         :param row_pos: Row index of tile (NB: First row has index 0!)
         :param col_pos: Column index of tile
         :param new_tile_type: TileType enum
         :return:
         """
         self._board[row_pos][col_pos].tile_type = new_tile_type
+        self._board[row_pos][col_pos].set_tile_texture()
 
     def remove_tiles(self, tile_coordinates):
         """
