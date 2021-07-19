@@ -22,21 +22,25 @@ SCREEN_WIDTH = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2 * VERTICAL_BORDER
 SCREEN_HEIGHT = (TILE_SCALED_HEIGHT + MARGIN) * ROW_COUNT + HORIZONTAL_BORDER_MARGIN
 
 
-class TileMiner(arcade.Window):
+class TileMiner(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, row_count=ROW_COUNT, column_count=COLUMN_COUNT):
         """
         TileMiner construct.
-        :param screen_width: screen width of window
-        :param screen_height: screen height of window
         """
 
-        super().__init__(screen_width, screen_height, "Tile miner")
-
+        super().__init__()
         arcade.set_background_color(arcade.color.LIGHT_TAUPE)
+
+        self.row_count = row_count
+        self.column_count = column_count
+
+        # window dimensions
+        self.screen_width = (TILE_SCALED_WIDTH + MARGIN) * self.column_count + 2 * VERTICAL_BORDER_MARGIN
+        self.screen_height = (TILE_SCALED_HEIGHT + MARGIN) * self.row_count + HORIZONTAL_BORDER_MARGIN
 
         # Create (1D) list of all sprites
         self.grid_sprite_list = arcade.SpriteList()
@@ -51,9 +55,9 @@ class TileMiner(arcade.Window):
         # Set up the initial board of tiles randomly. Make sure we have legal moves
         # to begin with
         while True:
-            for row in range(ROW_COUNT):
+            for row in range(self.row_count):
                 board_template.append([])
-                for column in range(COLUMN_COUNT):
+                for column in range(self.column_count):
                     x = column * (TILE_SCALED_WIDTH + MARGIN) + (
                                 TILE_SCALED_WIDTH / 2 + MARGIN / 2) + VERTICAL_BORDER_MARGIN
                     y = row * (TILE_SCALED_HEIGHT + MARGIN) + (TILE_SCALED_HEIGHT / 2 + MARGIN / 2)
@@ -66,7 +70,7 @@ class TileMiner(arcade.Window):
                     sprite.scale = SCALE_FACTOR
                     self.grid_sprite_list.append(sprite)
                     board_template[row].append(sprite)
-            self._board = Board(ROW_COUNT, COLUMN_COUNT, board_template)
+            self._board = Board(self.row_count, self.column_count, board_template)
             if self._board.any_legal_moves():
                 logging.info("Board now set up")
                 break
@@ -74,9 +78,9 @@ class TileMiner(arcade.Window):
         # Information to draw the rectangle which we'll use as our dash board to display the time left, score and
         # game messages
         self.dashboard_data = {
-            'center_x': SCREEN_WIDTH / 2,
-            'center_y': (ROW_COUNT + 1) * (TILE_SCALED_HEIGHT + MARGIN) + 2 * MARGIN,
-            'width': SCREEN_WIDTH - 2 * MARGIN,
+            'center_x': self.screen_width / 2,
+            'center_y': (self.row_count + 1) * (TILE_SCALED_HEIGHT + MARGIN) + 2 * MARGIN,
+            'width': self.screen_width - 2 * MARGIN,
             'height': HORIZONTAL_BORDER_MARGIN - 2 * MARGIN,
         }
         self.dashboard = Dashboard(self.dashboard_data)
@@ -114,7 +118,7 @@ class TileMiner(arcade.Window):
         row = int(y // (TILE_SCALED_HEIGHT + MARGIN))
 
         # Highlight a group of tiles of the same type (single tiles will never be highlighted)
-        if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
+        if row < 0 or row >= self.row_count or column < 0 or column >= self.column_count \
                 or self._board.get_tile_type(row, column) == TileType.EMPTY:
             return
         group, perimeter = self._board.find_group_and_perimeter(row, column)
@@ -140,7 +144,7 @@ class TileMiner(arcade.Window):
 
         # If selected tile is part of a group of same-type tiles, remove and increment surrounding tiles by one (or
         # reset to one if tile has type four)
-        if row < 0 or row >= ROW_COUNT or column < 0 or column >= COLUMN_COUNT \
+        if row < 0 or row >= self.row_count or column < 0 or column >= self.column_count \
                 or self._board.get_tile_type(row, column) == TileType.EMPTY:
             return
         group, perimeter = self._board.find_group_and_perimeter(row, column)
@@ -177,7 +181,7 @@ class TileMiner(arcade.Window):
 
         if self.dashboard.timer < 0 or self.no_moves:
             time.sleep(2)
-            self.close()
+            arcade.close_window()
 
 
 def main():
@@ -185,8 +189,9 @@ def main():
     Main method to run game from.
     :return:
     """
-
-    TileMiner(SCREEN_WIDTH, SCREEN_HEIGHT)
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tile Miner")
+    tile_miner = TileMiner()
+    window.show_view(tile_miner)
     arcade.run()
 
 

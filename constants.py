@@ -5,6 +5,10 @@ TWO_TILE_SPRITE_PATH = "images/two_alt.png"
 THREE_TILE_SPRITE_PATH = "images/three_alt.png"
 FOUR_TILE_SPRITE_PATH = "images/four_alt.png"
 
+# Window dimensions for views other than main game view
+WIDTH = 800
+HEIGHT = 600
+
 # Each tile .png image is 83 x 83 pixels
 TILE_PIXEL_WIDTH = 83
 TILE_PIXEL_HEIGHT = 83
