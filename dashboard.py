@@ -25,7 +25,7 @@ class Dashboard(object):
         """
         self._dashboard_data: dict = dashboard_data
         self._initial_msg_timer: int = msg_timer
-        self.timer: int = timer
+        self.timer: int = timer + 1
         self.score: int = score
         self.message: str = message
         self.msg_timer: int = msg_timer
@@ -91,7 +91,7 @@ class Dashboard(object):
         arcade.draw_rectangle_outline(**self._dashboard_data, color=arcade.color.BLACK, border_width=2 * MARGIN)
 
         # Calculate timer (in MM:SS format) and display text
-        calc_min = int(self._timer) // 60
+        calc_min = int(self._timer / 60)
         calc_sec = int(self._timer % 60)
         result_time = f"Time left: {calc_min}:{str(calc_sec).zfill(2)}"
         arcade.draw_text(result_time,

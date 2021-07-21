@@ -2,12 +2,14 @@ import arcade
 import arcade.gui
 from arcade.gui import UIManager
 from constants import *
-from tile_miner import TileMiner
+
 
 # TODO: Button for ranking table?
-# TODO: Display messages when input is invalid instead of raising exceptions
 # TODO: animated background? (idea: falling tiles at different speeds/rotations
-# TODO: Take input from minute/second input GUIs when starting the game
+
+
+class BoundaryError(Exception):
+    pass
 
 
 class PlayButton(arcade.gui.UIImageButton):
@@ -38,9 +40,9 @@ class MainMenu(arcade.View):
 
     # minimum/maximum dimensions for tile board (width and height)
     MIN = 4
-    MAX = 15
+    MAX = 20
 
-    def __init__(self, row_count=5, column_count=5):
+    def __init__(self, row_count=5, column_count=5, minutes=1, seconds=0):
         """
         MainMenu construct.
         """
@@ -50,9 +52,8 @@ class MainMenu(arcade.View):
         self.ui_manager = UIManager()
         self.row_count = row_count
         self.column_count = column_count
-        self.minutes = 1
-        self.seconds = 0
-        self._timer = 60 * self.minutes + self.seconds
+        self.minutes = minutes
+        self.seconds = seconds
 
         # GUI elements which will get constructed in setup()
         self.ui_row_input_box = None
@@ -60,6 +61,10 @@ class MainMenu(arcade.View):
         self.ui_minute_input_box = None
         self.ui_second_input_box = None
         self.play_button = None
+
+    @property
+    def timer(self):
+        return 60 * self._minutes + self._seconds
 
     @property
     def row_count(self):
@@ -70,7 +75,7 @@ class MainMenu(arcade.View):
         if not isinstance(value, int):
             raise TypeError(f"row value not an integer: {value}")
         if value < self.MIN or value > self.MAX:
-            raise ValueError(f"row value not within bounds: {value}")
+            raise BoundaryError
         self._row_count = value
 
     @property
@@ -82,7 +87,7 @@ class MainMenu(arcade.View):
         if not isinstance(value, int):
             raise TypeError(f"column value not an integer: {value}")
         if value < self.MIN or value > self.MAX:
-            raise ValueError(f"column value not within bounds: {value}")
+            raise BoundaryError
         self._column_count = value
 
     @property
@@ -93,8 +98,8 @@ class MainMenu(arcade.View):
     def minutes(self, value):
         if not isinstance(value, int):
             raise TypeError(f"value not an integer type: {value}")
-        if value < 0:
-            raise ValueError(f"value must be greater than -1: {value}")
+        if value < 0 or value > 99:
+            raise BoundaryError(f"value must be between 0 and 99: {value}")
         self._minutes = value
 
     @property
@@ -106,7 +111,7 @@ class MainMenu(arcade.View):
         if not isinstance(value, int):
             raise TypeError(f"value not an integer type: {value}")
         if value < 0 or value > 59:
-            raise ValueError(f"value must be between 0 and 59: {value}")
+            raise BoundaryError(f"value must be between 0 and 59: {value}")
         self._seconds = value
 
     def setup(self):
@@ -118,15 +123,15 @@ class MainMenu(arcade.View):
         self.ui_manager.purge_ui_elements()
 
         # board row size input box
-        self.ui_row_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 4 / 10 + 175, center_y=HEIGHT * 6 / 10,
-                                                      width=300)
+        self.ui_row_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 6 / 10,
+                                                      width=350)
         self.ui_row_input_box.text = str(self._row_count)
         self.ui_row_input_box.cursor_index = len(self.ui_row_input_box.text)
         self.ui_manager.add_ui_element(self.ui_row_input_box)
 
         # board column size input box
-        self.ui_column_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 3 / 10 + 255, center_y=HEIGHT * 4.5 / 10,
-                                                         width=300)
+        self.ui_column_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 4.5 / 10,
+                                                         width=350)
         self.ui_column_input_box.text = str(self._column_count)
         self.ui_column_input_box.cursor_index = len(self.ui_column_input_box.text)
         self.ui_manager.add_ui_element(self.ui_column_input_box)
@@ -166,16 +171,29 @@ class MainMenu(arcade.View):
         arcade.start_render()
         arcade.draw_text("TILE MINER", WIDTH / 2, HEIGHT * 3/4,
                          arcade.color.BLACK, font_size=75, anchor_x="center")
+
         arcade.draw_text("Row size: ", WIDTH * 3 / 10, HEIGHT * 6 / 10,
                          arcade.color.BLACK, font_size=30, anchor_x="center", anchor_y="center")
+        arcade.draw_text("(Whole number between 4 and 20)", WIDTH * 6.5 / 10, HEIGHT * 5.4 / 10,
+                         arcade.color.BLACK, font_size=15, anchor_x="center", anchor_y="center")
+
         arcade.draw_text("Column size: ", WIDTH * 3 / 10 - 24, HEIGHT * 4.5 / 10,
                          arcade.color.BLACK, font_size=30, anchor_x="center", anchor_y="center")
+        arcade.draw_text("(Whole number between 4 and 20)", WIDTH * 6.5 / 10, HEIGHT * 3.9 / 10,
+                         arcade.color.BLACK, font_size=15, anchor_x="center", anchor_y="center")
+
         arcade.draw_text("Timer: ", WIDTH * 3.29 / 10, HEIGHT * 3 / 10,
                          arcade.color.BLACK, font_size=30, anchor_x="center", anchor_y="center")
+
         arcade.draw_text("min", WIDTH * 5.9 / 10, HEIGHT * 3 / 10,
                          arcade.color.BLACK, font_size=20, anchor_x="center", anchor_y="center")
+        arcade.draw_text("(0-99)", WIDTH * 4.93 / 10, HEIGHT * 2.4 / 10,
+                         arcade.color.BLACK, font_size=15, anchor_x="center", anchor_y="center")
+
         arcade.draw_text("sec", WIDTH * 7.85 / 10, HEIGHT * 3 / 10,
                          arcade.color.BLACK, font_size=20, anchor_x="center", anchor_y="center")
+        arcade.draw_text("(0-59)", WIDTH * 6.9 / 10, HEIGHT * 2.4 / 10,
+                         arcade.color.BLACK, font_size=15, anchor_x="center", anchor_y="center")
 
     def on_show_view(self):
         """
@@ -193,9 +211,22 @@ class MainMenu(arcade.View):
 
     def update(self, delta_time: float):
         if self.play_button.start_game:
-            self.row_count = int(self.ui_row_input_box.text)
-            self.column_count = int(self.ui_column_input_box.text)
-            game_view = TileMiner(row_count=self._row_count, column_count=self._column_count)
+            try:
+                self.row_count = int(self.ui_row_input_box.text)
+                self.column_count = int(self.ui_column_input_box.text)
+                self.minutes = int(self.ui_minute_input_box.text)
+                self.seconds = int(self.ui_second_input_box.text)
+            except (ValueError, BoundaryError):
+                self.ui_row_input_box.text = ""
+                self.ui_column_input_box.text = ""
+                self.ui_minute_input_box.text = ""
+                self.ui_second_input_box.text = ""
+                self.play_button.start_game = False
+                return
+
+            import tile_miner
+            game_view = tile_miner.TileMiner(row_count=self._row_count, column_count=self._column_count,
+                                             total_time=self.timer)
             self.window.width = game_view.screen_width
             self.window.height = game_view.screen_height
             self.window.show_view(game_view)
@@ -203,7 +234,7 @@ class MainMenu(arcade.View):
 
 def main():
     window = arcade.Window(WIDTH, HEIGHT, "Tile Miner")
-    menu_view = MainMenu(4, 4)
+    menu_view = MainMenu(6, 6, 3, 0)
     window.show_view(menu_view)
     arcade.run()
 

@@ -6,6 +6,7 @@ from board import Board
 from dashboard import Dashboard
 from constants import *
 import logging
+import return_view
 
 # Logger (for debugging)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
@@ -27,7 +28,7 @@ class TileMiner(arcade.View):
     Main application class.
     """
 
-    def __init__(self, row_count=ROW_COUNT, column_count=COLUMN_COUNT):
+    def __init__(self, row_count=ROW_COUNT, column_count=COLUMN_COUNT, total_time=60):
         """
         TileMiner construct.
         """
@@ -83,7 +84,7 @@ class TileMiner(arcade.View):
             'width': self.screen_width - 2 * MARGIN,
             'height': HORIZONTAL_BORDER_MARGIN - 2 * MARGIN,
         }
-        self.dashboard = Dashboard(self.dashboard_data)
+        self.dashboard = Dashboard(self.dashboard_data, timer=total_time)
 
         # Evaluates to True if no available moves can be found (i.e. the game ends)
         self.no_moves = False
@@ -96,6 +97,8 @@ class TileMiner(arcade.View):
 
         # dashboard message timer. Message pops up for a given amount of time for certain events.
         self._timer = 0
+
+        self.game_started = True
 
         logging.info("Initial board setup:\n" + str(self._board))
 
@@ -180,8 +183,11 @@ class TileMiner(arcade.View):
             self._board.highlight_group(self._highlighted_group, self._timer)
 
         if self.dashboard.timer < 0 or self.no_moves:
-            time.sleep(2)
-            arcade.close_window()
+            time.sleep(1)
+            next_view = return_view.ReturnView()
+            self.window.width = WIDTH
+            self.window.height = HEIGHT
+            self.window.show_view(next_view)
 
 
 def main():
