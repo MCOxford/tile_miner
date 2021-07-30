@@ -7,6 +7,7 @@ from dashboard import Dashboard
 from constants import *
 import logging
 import return_view
+import datetime
 
 # Logger (for debugging)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
@@ -102,6 +103,18 @@ class TileMiner(arcade.View):
 
         logging.info("Initial board setup:\n" + str(self._board))
 
+    @property
+    def player_data(self):
+        current_date = datetime.datetime.today()
+        return {'name': "",
+                'date_year': str(current_date.year),
+                'date_month':  str(current_date.month),
+                'date_day':  str(current_date.day),
+                'row': str(self.row_count), 'column': str(self.column_count),
+                'time_minutes': str(int(self._timer / 60)), 'time_seconds': str(int(self._timer % 60)),
+                'score': str(self.dashboard.score)
+                }
+
     def on_draw(self):
         """
         Render the screen.
@@ -183,8 +196,8 @@ class TileMiner(arcade.View):
             self._board.highlight_group(self._highlighted_group, self._timer)
 
         if self.dashboard.timer < 0 or self.no_moves:
-            time.sleep(1)
-            next_view = return_view.ReturnView()
+            time.sleep(1.5)
+            next_view = return_view.ReturnView(self.player_data)
             self.window.width = WIDTH
             self.window.height = HEIGHT
             self.window.show_view(next_view)
