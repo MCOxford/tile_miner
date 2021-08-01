@@ -276,10 +276,3 @@ if __name__ == "__main__":
     board = Board(5, 5)
     print(board)
     print(board.any_legal_moves())
-
-    board_template = [[Tile(1), Tile(2), Tile(3)],
-                      [Tile(2), Tile(1), Tile(2)],
-                      [Tile(1), Tile(2), Tile(1)]]
-    board2 = Board(3, 3, board_template)
-    print(board2)
-    print(board2.any_legal_moves())

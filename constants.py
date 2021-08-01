@@ -1,10 +1,3 @@
-# Tile image file paths
-EMPTY_TILE_SPRITE_PATH = "images/empty_alt.png"
-ONE_TILE_SPRITE_PATH = "images/one_alt.png"
-TWO_TILE_SPRITE_PATH = "images/two_alt.png"
-THREE_TILE_SPRITE_PATH = "images/three_alt.png"
-FOUR_TILE_SPRITE_PATH = "images/four_alt.png"
-
 # Window dimensions for views other than main game view
 WIDTH = 800
 HEIGHT = 600

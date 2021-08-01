@@ -3,6 +3,12 @@ import arcade.gui
 from arcade.gui import UIManager
 from constants import *
 
+import os
+dirname = os.path.dirname(__file__)
+button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
+hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
+pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
+
 
 class BoundaryError(Exception):
     pass
@@ -22,7 +28,7 @@ class PlayButton(arcade.gui.UIImageButton):
 
 class QuitButton(arcade.gui.UIImageButton):
     """
-    Quit button class - creates a button to close down game
+    Quit button class - creates a button to close down game.
     """
 
     def on_click(self):
@@ -31,7 +37,7 @@ class QuitButton(arcade.gui.UIImageButton):
 
 class LeaderboardButton(arcade.gui.UIImageButton):
     """
-    Leaderboard button class - click the button to go to the leaderboard
+    Leaderboard button class - click the button to go to the leaderboard.
     """
 
     go_to_leaderboard = False
@@ -124,7 +130,7 @@ class MainMenu(arcade.View):
 
     def setup(self):
         """
-        Sets up menu screen with GUI elements
+        Sets up menu screen with GUI elements.
         :return:
         """
 
@@ -159,9 +165,6 @@ class MainMenu(arcade.View):
         self.ui_manager.add_ui_element(self.ui_second_input_box)
 
         # play button - press to play the game (creates a new view)
-        button_normal = arcade.load_texture('images/red_button_normal.png')
-        hovered_texture = arcade.load_texture('images/red_button_hover.png')
-        pressed_texture = arcade.load_texture('images/red_button_press.png')
         self.play_button = PlayButton(center_x=WIDTH / 2, center_y=HEIGHT * 1.5 / 10, normal_texture=button_normal,
                                       hover_texture=hovered_texture, press_texture=pressed_texture, text='Play!')
         self.ui_manager.add_ui_element(self.play_button)
@@ -211,19 +214,26 @@ class MainMenu(arcade.View):
 
     def on_show_view(self):
         """
-        Show this view
+        Show this view.
         """
 
         self.setup()
 
     def on_hide_view(self):
         """
-        What to do when hiding this view
+        What to do when hiding this view.
         :return:
         """
+
         self.ui_manager.unregister_handlers()
 
     def update(self, delta_time: float):
+        """
+        Called every frame.
+        :param delta_time: delta time for each frame.
+        :return:
+        """
+
         if self.play_button.start_game:
             try:
                 self.row_count = int(self.ui_row_input_box.text)
@@ -243,6 +253,7 @@ class MainMenu(arcade.View):
             self.window.width = game_view.screen_width
             self.window.height = game_view.screen_height
             self.window.show_view(game_view)
+
         if self.leaderboard_button.go_to_leaderboard:
             import leaderboard_view
             lb_view = leaderboard_view.LeaderboardView()

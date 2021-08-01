@@ -4,9 +4,17 @@ import os
 
 
 class DataHandler(object):
-    # We shall use the first file listed in data/
-    data_file = 'data/' + os.listdir(r'data/')[0]
+    """
+    This class interacts with the .xml file which records the data of previous players with the highest scores
+    obtained.
+    """
 
+    # We shall use the first file listed in data/
+    dirname = os.path.dirname(__file__)
+    data_dir = os.path.join(dirname, r'data/')
+    data_file = data_dir + os.listdir(data_dir)[0]
+
+    # We shall only store up to this amount of player data
     max_data = 5
 
     def __init__(self):
@@ -15,6 +23,11 @@ class DataHandler(object):
 
     @classmethod
     def change_data_file_path(cls, new_path: str):
+        """
+        change which file is used for this static class. Must be in .xml format
+        :param new_path:
+        :return:
+        """
         if os.path.isfile(new_path) and new_path.endswith('.xml'):
             cls.data_file = new_path
             print("Assigning new file path: SUCCESSFUL")
@@ -29,6 +42,10 @@ class DataHandler(object):
 
     @classmethod
     def get_leaderboard_data(cls):
+        """
+        Get leaderboard data in a dictionary format. The result is slightly different compared to using xmltodict.parse
+        :return:
+        """
         leaderboard_data = {}
         raw_data = cls.parse_xml_data()
         if raw_data['leaderboard'] is not None:
@@ -54,6 +71,11 @@ class DataHandler(object):
 
     @classmethod
     def new_high_score(cls, score: str):
+        """
+        Check if the player is qualified to add their name to the leaderboard based on their score.
+        :param score: player score
+        :return:
+        """
         is_high_score = False
         data = cls.parse_xml_data()
         if data['leaderboard'] is None or isinstance(data['leaderboard']['player'], OrderedDict) or \
@@ -69,6 +91,22 @@ class DataHandler(object):
     @classmethod
     def add_new_player_data(cls, name: str, date_year: str, date_month: str, date_day: str, row: str, column: str,
                             time_minutes: str, time_seconds: str, score: str):
+        """
+        Add player data to the XML file by parsing data in dictionary form, modifying it and writing the final
+        result. We include the following parameters below to the XML file and automatically calculate the rank
+        based on score which is also included with the rest of the data. Recommended to pass the arguments via
+        a dictionary (using the ** notation).
+        :param name:
+        :param date_year:
+        :param date_month:
+        :param date_day:
+        :param row:
+        :param column:
+        :param time_minutes:
+        :param time_seconds:
+        :param score:
+        :return:
+        """
         data = cls.parse_xml_data()
         new_data = OrderedDict({
             'name': name,
@@ -77,9 +115,12 @@ class DataHandler(object):
             'time': OrderedDict({'minutes': time_minutes, 'seconds': time_seconds}),
             'score': score,
         })
+
+        # If there is no data, manually add 'player' environment
         if data['leaderboard'] is None:
             new_data['@rank'] = '1'
             data['leaderboard'] = {'player': [new_data]}
+
         # If there is only one set of player data recorded, we work with an ordered dictionary
         elif isinstance(data['leaderboard']['player'], OrderedDict):
             data_list = [data['leaderboard']['player']]
@@ -91,6 +132,7 @@ class DataHandler(object):
             data_list.append(new_data)
             data_list.sort(key=lambda x: int(x['@rank']))
             data['leaderboard']['player'] = data_list
+
         # In this case, we now work with a list
         else:
             data_list = data['leaderboard']['player']
@@ -110,6 +152,8 @@ class DataHandler(object):
                 data_list.append(new_data)
             data_list.sort(key=lambda x: int(x['@rank']))
             data['leaderboard']['player'] = data_list
+
+        # Write new xml format to file
         xml_format = xmltodict.unparse(data, pretty=True)
         with open(cls.data_file, 'w') as f:
             f.write(xml_format)

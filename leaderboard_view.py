@@ -6,6 +6,13 @@ from arcade.gui import UIManager
 from constants import *
 
 
+import os
+dirname = os.path.dirname(__file__)
+button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
+hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
+pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
+
+
 class BackButton(arcade.gui.UIImageButton):
     """
     When clicked, go back to the menu view.
@@ -18,6 +25,9 @@ class BackButton(arcade.gui.UIImageButton):
 
 
 class LeaderboardView(arcade.View):
+    """
+    This view displays player name and data obtained from the .xml file (via DataHandler).
+    """
 
     def __init__(self):
         """
@@ -32,12 +42,14 @@ class LeaderboardView(arcade.View):
         self.back_button = None
 
     def setup(self):
+        """
+        Sets up leaderboard screen with GUI elements.
+        :return:
+        """
+
         self.ui_manager.purge_ui_elements()
 
         # back button - press to play the game (creates a new view)
-        button_normal = arcade.load_texture('images/red_button_normal.png')
-        hovered_texture = arcade.load_texture('images/red_button_hover.png')
-        pressed_texture = arcade.load_texture('images/red_button_press.png')
         self.back_button = BackButton(center_x=WIDTH / 2, center_y=HEIGHT * 1.5 / 10, normal_texture=button_normal,
                                       hover_texture=hovered_texture, press_texture=pressed_texture, text='Back')
         self.ui_manager.add_ui_element(self.back_button)
@@ -66,8 +78,12 @@ class LeaderboardView(arcade.View):
         leaderboard_data = DataHandler.get_leaderboard_data()
         for i in range(len(leaderboard_data)):
             rank = str(i+1)
+
+            # If name is too big, shorten it using '...' (e.g. Franklin -> Frankl...)
             name = leaderboard_data[rank]['name']
             name = name[:6] + '...' if len(name) > 6 else name
+
+            # Display the data
             arcade.draw_text(name, WIDTH / 6, HEIGHT * 3 / 4 - 50*(i+2),
                              arcade.color.BLACK, font_size=20, anchor_x="center")
             arcade.draw_text(leaderboard_data[rank]['date'], WIDTH * 2 / 6, HEIGHT * 3 / 4 - 50*(i+2),
@@ -81,20 +97,26 @@ class LeaderboardView(arcade.View):
 
     def on_show_view(self):
         """
-        Show this view
+        Show this view.
         """
 
         self.setup()
 
     def on_hide_view(self):
         """
-        What to do when hiding this view
+        What to do when hiding this view.
         :return:
         """
 
         self.ui_manager.unregister_handlers()
 
     def update(self, delta_time: float):
+        """
+        Called every frame.
+        :param delta_time: delta time for each frame.
+        :return:
+        """
+
         if self.back_button.go_back:
             next_view = menu_view.MainMenu()
             self.window.show_view(next_view)

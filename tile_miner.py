@@ -5,23 +5,19 @@ from tile import Tile, TileType
 from board import Board
 from dashboard import Dashboard
 from constants import *
-import logging
+# import logging
 import return_view
 import datetime
 
 # Logger (for debugging)
-#logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 
 # Set random seed (for debugging)
-#random.seed(0)
+# random.seed(0)
 
 # Set how many rows and columns we will have
 ROW_COUNT = 4
 COLUMN_COUNT = 4
-
-# Do the math to figure out our screen dimensions
-SCREEN_WIDTH = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2 * VERTICAL_BORDER_MARGIN
-SCREEN_HEIGHT = (TILE_SCALED_HEIGHT + MARGIN) * ROW_COUNT + HORIZONTAL_BORDER_MARGIN
 
 
 class TileMiner(arcade.View):
@@ -74,7 +70,7 @@ class TileMiner(arcade.View):
                     board_template[row].append(sprite)
             self._board = Board(self.row_count, self.column_count, board_template)
             if self._board.any_legal_moves():
-                #logging.info("Board now set up")
+                # logging.info("Board now set up")
                 break
 
         # Information to draw the rectangle which we'll use as our dash board to display the time left, score and
@@ -99,12 +95,17 @@ class TileMiner(arcade.View):
         # dashboard message timer. Message pops up for a given amount of time for certain events.
         self._timer = 0
 
+        # Has the game already started?
         self.game_started = True
 
-        #logging.info("Initial board setup:\n" + str(self._board))
+        # logging.info("Initial board setup:\n" + str(self._board))
 
     @property
     def player_data(self):
+        """
+        Encapsulate player data for this game session.
+        :return:
+        """
         current_date = datetime.datetime.today()
         return {'name': "",
                 'date_year': str(current_date.year),
@@ -157,7 +158,7 @@ class TileMiner(arcade.View):
         column = int((x - VERTICAL_BORDER_MARGIN) // (TILE_SCALED_WIDTH + MARGIN))
         row = int(y // (TILE_SCALED_HEIGHT + MARGIN))
 
-        #logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
+        # logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
 
         # If selected tile is part of a group of same-type tiles, remove and increment surrounding tiles by one (or
         # reset to one if tile has type four)
@@ -179,8 +180,8 @@ class TileMiner(arcade.View):
 
     def on_update(self, new_time):
         """
-        Called every frame
-        :param new_time: delta time for each frame
+        Called every frame.
+        :param new_time: delta time for each frame.
         :return:
         """
 
@@ -209,7 +210,10 @@ def main():
     Main method to run game from.
     :return:
     """
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tile Miner")
+    screen_width = (TILE_SCALED_WIDTH + MARGIN) * COLUMN_COUNT + 2 * VERTICAL_BORDER_MARGIN
+    screen_height = (TILE_SCALED_HEIGHT + MARGIN) * ROW_COUNT + HORIZONTAL_BORDER_MARGIN
+
+    window = arcade.Window(screen_width, screen_height, "Tile Miner")
     tile_miner = TileMiner()
     window.show_view(tile_miner)
     arcade.run()

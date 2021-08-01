@@ -5,7 +5,7 @@ from constants import *
 class Dashboard(object):
     """
     Dashboard class. The dashboard in-game records the time left, current player points and any messages which
-    get displayed for certain events
+    get displayed for certain events.
     """
 
     # One removed tiles equals a pre-defined number of points
@@ -82,7 +82,7 @@ class Dashboard(object):
 
     def setup_dashboard(self):
         """
-        Start drawing the dashboard and display the text
+        Start drawing the dashboard and display the text.
         :return:
         """
 
@@ -123,24 +123,27 @@ class Dashboard(object):
 
     def reset_message(self):
         """
-        Set dashboard message as an empty string
+        Set dashboard message as an empty string.
         :return:
         """
+
         self._message = ""
 
     def reset_msg_timer(self):
         """
-        Reset the timer for the message
+        Reset the timer for the message.
         :return:
         """
+
         self._msg_timer = self._initial_msg_timer
 
     def calculate_new_score(self, group):
         """
-        Calculate the player score based on the tile group just removed from the board
-        :param group: Collection of removed tiles
+        Calculate the player score based on the tile group just removed from the board.
+        :param group: Collection of removed tiles.
         :return:
         """
+
         group_size = len(group)
         self._score += self.base_tile_score * group_size
         if group_size > 4:

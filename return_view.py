@@ -3,10 +3,12 @@ from arcade.gui import UIManager
 import menu_view
 from data_handler import DataHandler
 from constants import *
+import os
 
-button_normal = arcade.load_texture('images/red_button_normal.png')
-hovered_texture = arcade.load_texture('images/red_button_hover.png')
-pressed_texture = arcade.load_texture('images/red_button_press.png')
+dirname = os.path.dirname(__file__)
+button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
+hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
+pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
 
 
 class RestartButton(arcade.gui.UIImageButton):
@@ -39,24 +41,23 @@ class ReturnView(arcade.View):
 
     def __init__(self, player_data: dict):
         """
-        ReturnView construct
-        :param player_data: dictionary containing data from the previous game session
+        ReturnView construct.
+        :param player_data: dictionary containing data from the previous game session.
         """
 
         super().__init__()
         arcade.set_background_color(arcade.color.LIGHT_TAUPE)
         self.ui_manager = UIManager()
         self.player_data = player_data
+        self.txt_timer = 1.0
+        self.submitted = False
 
-        # GUI elements
+        # GUI elements which will get constructed in setup()
         self.ui_name_input_box = None
         self.submit_button = None
         self.submitted_text = ""
         self.restart_button = None
         self.quit_button = None
-
-        self.txt_timer = 1.0
-        self.submitted = False
 
     @property
     def new_high_score(self):
@@ -91,7 +92,7 @@ class ReturnView(arcade.View):
 
     def setup(self):
         """
-        Setup GUI elements.
+        Set up GUI elements.
         :return:
         """
 
@@ -133,7 +134,7 @@ class ReturnView(arcade.View):
 
     def on_hide_view(self):
         """
-        What to do when hiding this view
+        What to do when hiding this view.
         :return:
         """
 
@@ -141,7 +142,7 @@ class ReturnView(arcade.View):
 
     def update(self, delta_time: float):
         """
-        Update procedure per frame
+        Update procedure per frame.
         :param delta_time:
         :return:
         """

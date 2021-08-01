@@ -1,6 +1,14 @@
 import arcade
 from enum import Enum
-from constants import *
+import os
+
+# Tile image file paths
+dirname = os.path.dirname(__file__)
+EMPTY_TILE_SPRITE_PATH = os.path.join(dirname, "images/empty_alt.png")
+ONE_TILE_SPRITE_PATH = os.path.join(dirname, "images/one_alt.png")
+TWO_TILE_SPRITE_PATH = os.path.join(dirname, "images/two_alt.png")
+THREE_TILE_SPRITE_PATH = os.path.join(dirname, "images/three_alt.png")
+FOUR_TILE_SPRITE_PATH = os.path.join(dirname, "images/four_alt.png")
 
 
 class TileTypeError(Exception):
@@ -72,7 +80,7 @@ class Tile(arcade.Sprite):
     @classmethod
     def _check_tile_type_exists(cls, tile_type):
         """
-        Check tile_type is indeed a TileType member
+        Check tile_type is indeed a TileType member.
         :param tile_type: parameter to check
         :return:
         """
