@@ -101,7 +101,7 @@ class ReturnView(arcade.View):
             # name input box
             self.ui_name_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 5 / 10,
                                                            width=400)
-            self.ui_name_input_box.text = str('De Facto')
+            self.ui_name_input_box.text = str('MCO')
             self.ui_name_input_box.cursor_index = len(self.ui_name_input_box.text)
             self.ui_manager.add_ui_element(self.ui_name_input_box)
 
@@ -170,7 +170,7 @@ def main():
                               'date_year': '2008', 'date_month': '05', 'date_day': '22',
                               'row': '4', 'column': '3',
                               'time_minutes': '4', 'time_seconds': '00',
-                              'score': '29000'
+                              'score': '30000'
                               })
     window.show_view(return_view)
     arcade.run()

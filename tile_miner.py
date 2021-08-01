@@ -10,10 +10,10 @@ import return_view
 import datetime
 
 # Logger (for debugging)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+#logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 
 # Set random seed (for debugging)
-random.seed(0)
+#random.seed(0)
 
 # Set how many rows and columns we will have
 ROW_COUNT = 4
@@ -39,6 +39,7 @@ class TileMiner(arcade.View):
 
         self.row_count = row_count
         self.column_count = column_count
+        self._total_time = total_time
 
         # window dimensions
         self.screen_width = (TILE_SCALED_WIDTH + MARGIN) * self.column_count + 2 * VERTICAL_BORDER_MARGIN
@@ -47,15 +48,14 @@ class TileMiner(arcade.View):
         # Create (1D) list of all sprites
         self.grid_sprite_list = arcade.SpriteList()
 
-        # 2D grid of sprites to that points to the same sprites that are
-        # in grid_sprite_list. Improves runtime of the code.
+        # 2D grid of sprites to that points to the same sprites that are in grid_sprite_list. Improves runtime of the
+        # code.
         board_template = []
 
         # List of non-empty tile types
         nonempty_types = [i for i in TileType if i != TileType.EMPTY]
 
-        # Set up the initial board of tiles randomly. Make sure we have legal moves
-        # to begin with
+        # Set up the initial board of tiles randomly. Make sure we have legal moves to begin with.
         while True:
             for row in range(self.row_count):
                 board_template.append([])
@@ -74,7 +74,7 @@ class TileMiner(arcade.View):
                     board_template[row].append(sprite)
             self._board = Board(self.row_count, self.column_count, board_template)
             if self._board.any_legal_moves():
-                logging.info("Board now set up")
+                #logging.info("Board now set up")
                 break
 
         # Information to draw the rectangle which we'll use as our dash board to display the time left, score and
@@ -101,7 +101,7 @@ class TileMiner(arcade.View):
 
         self.game_started = True
 
-        logging.info("Initial board setup:\n" + str(self._board))
+        #logging.info("Initial board setup:\n" + str(self._board))
 
     @property
     def player_data(self):
@@ -111,7 +111,8 @@ class TileMiner(arcade.View):
                 'date_month':  str(current_date.month),
                 'date_day':  str(current_date.day),
                 'row': str(self.row_count), 'column': str(self.column_count),
-                'time_minutes': str(int(self._timer / 60)), 'time_seconds': str(int(self._timer % 60)),
+                'time_minutes': str(int(self._total_time / 60)),
+                'time_seconds': str(int(self._total_time % 60)).zfill(2),
                 'score': str(self.dashboard.score)
                 }
 
@@ -156,7 +157,7 @@ class TileMiner(arcade.View):
         column = int((x - VERTICAL_BORDER_MARGIN) // (TILE_SCALED_WIDTH + MARGIN))
         row = int(y // (TILE_SCALED_HEIGHT + MARGIN))
 
-        logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
+        #logging.info(f"Click coordinates: ({x}, {y}). Grid coordinates: ({row}, {column})")
 
         # If selected tile is part of a group of same-type tiles, remove and increment surrounding tiles by one (or
         # reset to one if tile has type four)

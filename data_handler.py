@@ -4,7 +4,6 @@ import os
 
 
 class DataHandler(object):
-
     # We shall use the first file listed in data/
     data_file = 'data/' + os.listdir(r'data/')[0]
 
@@ -15,7 +14,7 @@ class DataHandler(object):
             raise IOError("File not suitable. Is it an XML file? Make sure the root element is 'leaderboard'.")
 
     @classmethod
-    def change_data_file_path(cls, new_path):
+    def change_data_file_path(cls, new_path: str):
         if os.path.isfile(new_path) and new_path.endswith('.xml'):
             cls.data_file = new_path
             print("Assigning new file path: SUCCESSFUL")
@@ -27,6 +26,31 @@ class DataHandler(object):
         with open(cls.data_file, 'r') as f:
             data = xmltodict.parse(f.read())
         return data
+
+    @classmethod
+    def get_leaderboard_data(cls):
+        leaderboard_data = {}
+        raw_data = cls.parse_xml_data()
+        if raw_data['leaderboard'] is not None:
+            p_data = raw_data['leaderboard']['player']
+            if isinstance(p_data, OrderedDict):
+                leaderboard_data[p_data['@rank']] = {
+                    'name': p_data['name'],
+                    'date': f"{p_data['date']['year']}-{p_data['date']['month']}-{p_data['date']['day']}",
+                    'dimensions': f"{p_data['dimensions']['row']}x{p_data['dimensions']['column']}",
+                    'time': f"{p_data['time']['minutes']}:{p_data['time']['seconds']}",
+                    'score': p_data['score'],
+                }
+            else:
+                for i in range(len(p_data)):
+                    leaderboard_data[p_data[i]['@rank']] = {
+                        'name': p_data[i]['name'],
+                        'date': f"{p_data[i]['date']['year']}-{p_data[i]['date']['month']}-{p_data[i]['date']['day']}",
+                        'dimensions': f"{p_data[i]['dimensions']['row']}x{p_data[i]['dimensions']['column']}",
+                        'time': f"{p_data[i]['time']['minutes']}:{p_data[i]['time']['seconds']}",
+                        'score': p_data[i]['score'],
+                    }
+        return leaderboard_data
 
     @classmethod
     def new_high_score(cls, score: str):
@@ -71,7 +95,7 @@ class DataHandler(object):
         else:
             data_list = data['leaderboard']['player']
             data_list.sort(reverse=True, key=lambda x: int(x['@rank']))
-            new_data['@rank'] = str(len(data_list)+1)
+            new_data['@rank'] = str(len(data_list) + 1)
             for i in range(len(data_list)):
                 if int(score) > int(data_list[i]['score']):
                     new_data['@rank'] = data_list[i]['@rank']
@@ -92,4 +116,6 @@ class DataHandler(object):
 
 
 if __name__ == "__main__":
-    pass
+    from pprint import pprint
+    test = DataHandler.get_leaderboard_data()
+    pprint(test)

@@ -4,10 +4,6 @@ from arcade.gui import UIManager
 from constants import *
 
 
-# TODO: Button for ranking table?
-# TODO: animated background? (idea: falling tiles at different speeds/rotations
-
-
 class BoundaryError(Exception):
     pass
 
@@ -31,6 +27,17 @@ class QuitButton(arcade.gui.UIImageButton):
 
     def on_click(self):
         arcade.close_window()
+
+
+class LeaderboardButton(arcade.gui.UIImageButton):
+    """
+    Leaderboard button class - click the button to go to the leaderboard
+    """
+
+    go_to_leaderboard = False
+
+    def on_click(self):
+        self.go_to_leaderboard = True
 
 
 class MainMenu(arcade.View):
@@ -61,6 +68,7 @@ class MainMenu(arcade.View):
         self.ui_minute_input_box = None
         self.ui_second_input_box = None
         self.play_button = None
+        self.leaderboard_button = None
 
     @property
     def timer(self):
@@ -163,6 +171,12 @@ class MainMenu(arcade.View):
                                  hover_texture=hovered_texture, press_texture=pressed_texture, text='Quit')
         self.ui_manager.add_ui_element(quit_button)
 
+        # leaderboard button - press to go to the leaderboard view
+        self.leaderboard_button = LeaderboardButton(center_x=WIDTH * 2 / 10, center_y=HEIGHT * 1 / 10,
+                                                    normal_texture=button_normal, hover_texture=hovered_texture,
+                                                    press_texture=pressed_texture, text='Leaderboard')
+        self.ui_manager.add_ui_element(self.leaderboard_button)
+
     def on_draw(self):
         """
         Render the screen.
@@ -223,13 +237,16 @@ class MainMenu(arcade.View):
                 self.ui_second_input_box.text = ""
                 self.play_button.start_game = False
                 return
-
             import tile_miner
             game_view = tile_miner.TileMiner(row_count=self._row_count, column_count=self._column_count,
                                              total_time=self.timer)
             self.window.width = game_view.screen_width
             self.window.height = game_view.screen_height
             self.window.show_view(game_view)
+        if self.leaderboard_button.go_to_leaderboard:
+            import leaderboard_view
+            lb_view = leaderboard_view.LeaderboardView()
+            self.window.show_view(lb_view)
 
 
 def main():

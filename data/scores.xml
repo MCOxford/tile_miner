@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<leaderboard>
+	<player rank="1">
+		<name>MCO</name>
+		<date>
+			<year>2021</year>
+			<month>8</month>
+			<day>1</day>
+		</date>
+		<dimensions>
+			<row>6</row>
+			<column>6</column>
+		</dimensions>
+		<time>
+			<minutes>3</minutes>
+			<seconds>00</seconds>
+		</time>
+		<score>3300</score>
+	</player>
+	<player rank="2">
+		<name>MCO</name>
+		<date>
+			<year>2021</year>
+			<month>8</month>
+			<day>1</day>
+		</date>
+		<dimensions>
+			<row>5</row>
+			<column>6</column>
+		</dimensions>
+		<time>
+			<minutes>23</minutes>
+			<seconds>00</seconds>
+		</time>
+		<score>2650</score>
+	</player>
+</leaderboard>
