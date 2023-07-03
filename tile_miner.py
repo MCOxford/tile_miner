@@ -73,7 +73,7 @@ class TileMiner(arcade.View):
                 # logging.info("Board now set up")
                 break
 
-        # Information to draw the rectangle which we'll use as our dash board to display the time left, score and
+        # Information to draw the rectangle which we'll use as our dashboard to display the time left, score and
         # game messages
         self.dashboard_data = {
             'center_x': self.screen_width / 2,

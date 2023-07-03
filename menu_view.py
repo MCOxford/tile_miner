@@ -8,41 +8,42 @@ dirname = os.path.dirname(__file__)
 button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
 hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
 pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
+bg_tex = arcade.load_texture(":resources:gui_basic_assets/window/grey_panel.png")
 
 
 class BoundaryError(Exception):
     pass
 
 
-class PlayButton(arcade.gui.UIImageButton):
+class PlayButton(arcade.gui.UITextureButton):
     """
     To capture a button click, subclass the button and override on_click.
     """
 
     start_game = False
 
-    def on_click(self):
+    def on_click(self, *_):
         """ Called when user lets off button """
         self.start_game = True
 
 
-class QuitButton(arcade.gui.UIImageButton):
+class QuitButton(arcade.gui.UITextureButton):
     """
     Quit button class - creates a button to close down game.
     """
 
-    def on_click(self):
+    def on_click(self, *_):
         arcade.close_window()
 
 
-class LeaderboardButton(arcade.gui.UIImageButton):
+class LeaderboardButton(arcade.gui.UITextureButton):
     """
     Leaderboard button class - click the button to go to the leaderboard.
     """
 
     go_to_leaderboard = False
 
-    def on_click(self):
+    def on_click(self, *_):
         self.go_to_leaderboard = True
 
 
@@ -63,6 +64,7 @@ class MainMenu(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.LIGHT_TAUPE)
         self.ui_manager = UIManager()
+        self.ui_manager.enable()
         self.row_count = row_count
         self.column_count = column_count
         self.minutes = minutes
@@ -134,51 +136,51 @@ class MainMenu(arcade.View):
         :return:
         """
 
-        self.ui_manager.purge_ui_elements()
+        self.ui_manager.clear()
 
         # board row size input box
-        self.ui_row_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 6 / 10,
-                                                      width=350)
+        self.ui_row_input_box = arcade.gui.UIInputText(x=WIDTH * 4.5 / 10, y=HEIGHT * 5.7 / 10,
+                                                       width=350, height=30, font_size=20)
         self.ui_row_input_box.text = str(self._row_count)
         self.ui_row_input_box.cursor_index = len(self.ui_row_input_box.text)
-        self.ui_manager.add_ui_element(self.ui_row_input_box)
+        self.ui_manager.add(arcade.gui.UITexturePane(self.ui_row_input_box, tex=bg_tex, padding=(10, 10, 10, 10)))
 
         # board column size input box
-        self.ui_column_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 4.5 / 10,
-                                                         width=350)
+        self.ui_column_input_box = arcade.gui.UIInputText(x=WIDTH * 4.5 / 10, y=HEIGHT * 4.2 / 10,
+                                                          width=350, height=30, font_size=20)
         self.ui_column_input_box.text = str(self._column_count)
         self.ui_column_input_box.cursor_index = len(self.ui_column_input_box.text)
-        self.ui_manager.add_ui_element(self.ui_column_input_box)
+        self.ui_manager.add(arcade.gui.UITexturePane(self.ui_column_input_box, tex=bg_tex, padding=(10, 10, 10, 10)))
 
         # minute input box
-        self.ui_minute_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 4.94 / 10, center_y=HEIGHT * 3 / 10,
-                                                         width=100)
+        self.ui_minute_input_box = arcade.gui.UIInputText(x=WIDTH * 4.5 / 10, y=HEIGHT * 2.9 / 10,
+                                                          width=70, height=30, font_size=20)
         self.ui_minute_input_box.text = str(self._minutes)
         self.ui_minute_input_box.cursor_index = len(self.ui_minute_input_box.text)
-        self.ui_manager.add_ui_element(self.ui_minute_input_box)
+        self.ui_manager.add(arcade.gui.UITexturePane(self.ui_minute_input_box, tex=bg_tex, padding=(10, 10, 10, 10)))
 
         # second input box
-        self.ui_second_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.9 / 10, center_y=HEIGHT * 3 / 10,
-                                                         width=100)
+        self.ui_second_input_box = arcade.gui.UIInputText(x=WIDTH * 6.5 / 10, y=HEIGHT * 2.9 / 10,
+                                                          width=70, height=30, font_size=20)
         self.ui_second_input_box.text = str(self._seconds)
         self.ui_second_input_box.cursor_index = len(self.ui_second_input_box.text)
-        self.ui_manager.add_ui_element(self.ui_second_input_box)
+        self.ui_manager.add(arcade.gui.UITexturePane(self.ui_second_input_box, tex=bg_tex, padding=(10, 10, 10, 10)))
 
         # play button - press to play the game (creates a new view)
-        self.play_button = PlayButton(center_x=WIDTH / 2, center_y=HEIGHT * 1.5 / 10, normal_texture=button_normal,
-                                      hover_texture=hovered_texture, press_texture=pressed_texture, text='Play!')
-        self.ui_manager.add_ui_element(self.play_button)
+        self.play_button = PlayButton(x=WIDTH * 40/100, y=HEIGHT * 1 / 10, texture=button_normal,
+                                      texture_hovered=hovered_texture, texture_pressed=pressed_texture, text='Play!')
+        self.ui_manager.add(self.play_button)
 
         # quit button - close the game
-        quit_button = QuitButton(center_x=WIDTH * 8 / 10, center_y=HEIGHT * 1 / 10, normal_texture=button_normal,
-                                 hover_texture=hovered_texture, press_texture=pressed_texture, text='Quit')
-        self.ui_manager.add_ui_element(quit_button)
+        quit_button = QuitButton(x=WIDTH * 7 / 10, y=HEIGHT * 1 / 10, texture=button_normal,
+                                 texture_hovered=hovered_texture, texture_pressed=pressed_texture, text='Quit')
+        self.ui_manager.add(quit_button)
 
         # leaderboard button - press to go to the leaderboard view
-        self.leaderboard_button = LeaderboardButton(center_x=WIDTH * 2 / 10, center_y=HEIGHT * 1 / 10,
-                                                    normal_texture=button_normal, hover_texture=hovered_texture,
-                                                    press_texture=pressed_texture, text='Leaderboard')
-        self.ui_manager.add_ui_element(self.leaderboard_button)
+        self.leaderboard_button = LeaderboardButton(x=WIDTH * 1 / 10, y=HEIGHT * 1 / 10,
+                                                    texture=button_normal, texture_hovered=hovered_texture,
+                                                    texture_pressed=pressed_texture, text='Leaderboard')
+        self.ui_manager.add(self.leaderboard_button)
 
     def on_draw(self):
         """
@@ -212,6 +214,8 @@ class MainMenu(arcade.View):
         arcade.draw_text("(0-59)", WIDTH * 6.9 / 10, HEIGHT * 2.4 / 10,
                          arcade.color.BLACK, font_size=15, anchor_x="center", anchor_y="center")
 
+        self.ui_manager.draw()
+
     def on_show_view(self):
         """
         Show this view.
@@ -225,7 +229,7 @@ class MainMenu(arcade.View):
         :return:
         """
 
-        self.ui_manager.unregister_handlers()
+        self.ui_manager.disable()
 
     def update(self, delta_time: float):
         """

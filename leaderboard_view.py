@@ -11,16 +11,17 @@ dirname = os.path.dirname(__file__)
 button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
 hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
 pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
+bg_tex = arcade.load_texture(":resources:gui_basic_assets/window/grey_panel.png")
 
 
-class BackButton(arcade.gui.UIImageButton):
+class BackButton(arcade.gui.UITextureButton):
     """
     When clicked, go back to the menu view.
     """
 
     go_back = False
 
-    def on_click(self):
+    def on_click(self, *_):
         self.go_back = True
 
 
@@ -37,6 +38,7 @@ class LeaderboardView(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.LIGHT_TAUPE)
         self.ui_manager = UIManager()
+        self.ui_manager.enable()
 
         # GUI elements which will get constructed in setup()
         self.back_button = None
@@ -47,12 +49,12 @@ class LeaderboardView(arcade.View):
         :return:
         """
 
-        self.ui_manager.purge_ui_elements()
+        self.ui_manager.clear()
 
         # back button - press to play the game (creates a new view)
-        self.back_button = BackButton(center_x=WIDTH / 2, center_y=HEIGHT * 1.5 / 10, normal_texture=button_normal,
-                                      hover_texture=hovered_texture, press_texture=pressed_texture, text='Back')
-        self.ui_manager.add_ui_element(self.back_button)
+        self.back_button = BackButton(x=WIDTH / 2, y=HEIGHT * 1.5 / 10, texture=button_normal,
+                                      texture_hovered=hovered_texture, texture_pressed=pressed_texture, text='Back')
+        self.ui_manager.add(self.back_button)
 
     def on_draw(self):
         """
@@ -95,6 +97,8 @@ class LeaderboardView(arcade.View):
             arcade.draw_text(leaderboard_data[rank]['score'], WIDTH * 5 / 6, HEIGHT * 3 / 4 - 50*(i+2),
                              arcade.color.BLACK, font_size=20, anchor_x="center")
 
+        self.ui_manager.draw()
+
     def on_show_view(self):
         """
         Show this view.
@@ -108,7 +112,7 @@ class LeaderboardView(arcade.View):
         :return:
         """
 
-        self.ui_manager.unregister_handlers()
+        self.ui_manager.disable()
 
     def update(self, delta_time: float):
         """

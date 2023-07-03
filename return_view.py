@@ -9,27 +9,28 @@ dirname = os.path.dirname(__file__)
 button_normal = arcade.load_texture(os.path.join(dirname, 'images/red_button_normal.png'))
 hovered_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_hover.png'))
 pressed_texture = arcade.load_texture(os.path.join(dirname, 'images/red_button_press.png'))
+bg_tex = arcade.load_texture(":resources:gui_basic_assets/window/grey_panel.png")
 
 
-class RestartButton(arcade.gui.UIImageButton):
+class RestartButton(arcade.gui.UITextureButton):
     """
     When clicked, go back to the menu view.
     """
 
     restart = False
 
-    def on_click(self):
+    def on_click(self, *_):
         self.restart = True
 
 
-class SubmitButton(arcade.gui.UIImageButton):
+class SubmitButton(arcade.gui.UITextureButton):
     """
     When clicked, submit player data to the leaderboard.
     """
 
     submit = False
 
-    def on_click(self):
+    def on_click(self, *_):
         self.submit = True
 
 
@@ -48,6 +49,7 @@ class ReturnView(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.LIGHT_TAUPE)
         self.ui_manager = UIManager()
+        self.ui_manager.enable()
         self.player_data = player_data
         self.txt_timer = 1.0
         self.submitted = False
@@ -90,39 +92,41 @@ class ReturnView(arcade.View):
             arcade.draw_text(self.submitted_text, WIDTH * 5 / 10, HEIGHT * 3 / 10,
                              arcade.color.BLACK, font_size=30, anchor_x="center", anchor_y="center")
 
+        self.ui_manager.draw()
+
     def setup(self):
         """
         Set up GUI elements.
         :return:
         """
 
-        self.ui_manager.purge_ui_elements()
+        self.ui_manager.clear()
 
         if self.new_high_score or self.submitted:
             # name input box
-            self.ui_name_input_box = arcade.gui.UIInputBox(center_x=WIDTH * 6.5 / 10, center_y=HEIGHT * 5 / 10,
-                                                           width=400)
+            self.ui_name_input_box = arcade.gui.UIInputText(x=WIDTH * 4.5 / 10, y=HEIGHT * 4.5 / 10, width=400,
+                                                            font_size=30)
             self.ui_name_input_box.text = str('MCO')
             self.ui_name_input_box.cursor_index = len(self.ui_name_input_box.text)
-            self.ui_manager.add_ui_element(self.ui_name_input_box)
+            self.ui_manager.add(arcade.gui.UITexturePane(self.ui_name_input_box, tex=bg_tex, padding=(10, 10, 10, 10)))
 
             # submit button
-            self.submit_button = SubmitButton(center_x=WIDTH * 5 / 10, center_y=HEIGHT * 4 / 10,
-                                              normal_texture=button_normal, hover_texture=hovered_texture,
-                                              press_texture=pressed_texture, text='Submit')
-            self.ui_manager.add_ui_element(self.submit_button)
+            self.submit_button = SubmitButton(x=WIDTH * 4 / 10, y=HEIGHT * 3 / 10,
+                                              texture=button_normal, texture_hovered=hovered_texture,
+                                              texture_pressed=pressed_texture, text='Submit')
+            self.ui_manager.add(self.submit_button)
 
         # play button - press to play the game (creates a new view)
-        self.restart_button = RestartButton(center_x=WIDTH * 2 / 10, center_y=HEIGHT * 1 / 10,
-                                            normal_texture=button_normal, hover_texture=hovered_texture,
-                                            press_texture=pressed_texture, text='Restart')
-        self.ui_manager.add_ui_element(self.restart_button)
+        self.restart_button = RestartButton(x=WIDTH * 1 / 10, y=HEIGHT * 1 / 10,
+                                            texture=button_normal, texture_hovered=hovered_texture,
+                                            texture_pressed=pressed_texture, text='Restart')
+        self.ui_manager.add(self.restart_button)
 
         # quit button - close the game
-        self.quit_button = menu_view.QuitButton(center_x=WIDTH * 8 / 10, center_y=HEIGHT * 1 / 10,
-                                                normal_texture=button_normal, hover_texture=hovered_texture,
-                                                press_texture=pressed_texture, text='Quit')
-        self.ui_manager.add_ui_element(self.quit_button)
+        self.quit_button = menu_view.QuitButton(x=WIDTH * 7 / 10, y=HEIGHT * 1 / 10,
+                                                texture=button_normal, texture_hovered=hovered_texture,
+                                                texture_pressed=pressed_texture, text='Quit')
+        self.ui_manager.add(self.quit_button)
 
     def on_show_view(self):
         """
@@ -138,7 +142,7 @@ class ReturnView(arcade.View):
         :return:
         """
 
-        self.ui_manager.unregister_handlers()
+        self.ui_manager.disable()
 
     def update(self, delta_time: float):
         """

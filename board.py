@@ -205,7 +205,7 @@ class Board(object):
 
     def any_legal_moves(self):
         """
-        Check if there any available moves in the board. A 'move' is present on the board if there are at least two
+        Check if there is any available moves in the board. A 'move' is present on the board if there are at least two
         non-empty contiguous tiles of the same type.
         :return: Boolean
         """
